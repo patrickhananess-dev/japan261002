@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>Japan261002</title>
+<meta name="apple-mobile-web-app-title" content="Japan261002">
+<meta name="application-name" content="Japan261002">
+<style>
+/* 레이아웃: 모바일 한 열. 위에 앱바, 가운데 대화 로그, 아래에 고정 조작 패널 */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --text:#17222a; --muted:#5f6d76; --line:#dbe3e6;
+  --brand:#0f766e; --brand-ink:#ffffff; --brand-soft:#d9f0ec;
+  --ok:#166534; --ok-bg:#e3f5e9; --warn:#92400e; --warn-bg:#fdf0da; --bad:#991b1b; --bad-bg:#fce8e8;
+  --bubble-other:#ffffff; --bubble-me:#d9f0ec;
+  --font:"Noto Sans KR","Noto Sans JP","Hiragino Sans","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1719; --surface:#182226; --text:#e6eef0; --muted:#93a4ab; --line:#2a383d;
+  --brand:#3fb8aa; --brand-ink:#04211e; --brand-soft:#173b38;
+  --ok:#7ddc9b; --ok-bg:#153322; --warn:#f0be72; --warn-bg:#3a2b12; --bad:#f19a9a; --bad-bg:#3b1a1a;
+  --bubble-other:#182226; --bubble-me:#173b38; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f1719; --surface:#182226; --text:#e6eef0; --muted:#93a4ab; --line:#2a383d;
+  --brand:#3fb8aa; --brand-ink:#04211e; --brand-soft:#173b38;
+  --ok:#7ddc9b; --ok-bg:#153322; --warn:#f0be72; --warn-bg:#3a2b12; --bad:#f19a9a; --bad-bg:#3b1a1a;
+  --bubble-other:#182226; --bubble-me:#173b38; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 24px;min-height:100vh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:14px 8px}
+.top h1{font-size:1.25rem;margin:0;font-weight:700}
+.top .btns{display:flex;gap:6px}
+.icon{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;min-width:44px;height:44px;font-size:1.1rem;cursor:pointer;font-family:inherit}
+.sub{color:var(--muted);margin:0 0 12px;font-size:.95rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{font-size:1.05rem;margin:0 0 2px}
+.meta{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.row>*{flex:1 1 auto;min-width:0}
+.btn{border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);border-radius:12px;padding:12px 14px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;min-height:48px}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.danger{border-color:var(--bad);background:transparent;color:var(--bad)}
+.btn:disabled{opacity:.5}
+.link{background:none;border:0;color:var(--brand);font-size:.9rem;padding:8px 4px;cursor:pointer;font-family:inherit;text-decoration:underline}
+.mic{border:0;background:var(--brand);color:var(--brand-ink);border-radius:16px;min-height:64px;font-size:1.15rem;font-weight:700;cursor:pointer;font-family:inherit;flex:2 1 60%}
+.banner{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:.9rem}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:12px 6px;position:sticky;top:0;background:var(--bg);z-index:2}
+.hd .t{font-weight:700;min-width:0}
+.hd .p{color:var(--muted);font-size:.85rem}
+.log{flex:1;display:flex;flex-direction:column;gap:10px;padding-block:8px 16px}
+.bub{max-width:88%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);min-width:0;overflow-wrap:anywhere}
+.bub.other{align-self:flex-start;background:var(--bubble-other);border-bottom-left-radius:4px}
+.bub.me{align-self:flex-end;background:var(--bubble-me);border-bottom-right-radius:4px}
+.bub .who{font-size:.75rem;color:var(--muted);margin-bottom:2px}
+.bub .ja{font-size:1.15rem;font-weight:600}
+.bub .rd{font-size:.85rem;color:var(--muted)}
+.bub .ko{font-size:.85rem;color:var(--muted)}
+.bub .note{font-size:.8rem;color:var(--muted);font-style:italic}
+.bub .mk{font-size:.8rem;font-weight:700}
+.mk.ok{color:var(--ok)} .mk.ng{color:var(--bad)}
+.panel{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));margin-inline:-4px;display:flex;flex-direction:column;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.turn .who{font-size:.8rem;color:var(--brand);font-weight:700}
+.ko-big{font-size:1.2rem;font-weight:700;margin-top:2px}
+.muted{color:var(--muted)}
+.lbl{font-size:.75rem;color:var(--muted);margin-top:4px}
+.ans{font-size:1.3rem;font-weight:700;overflow-wrap:anywhere}
+.rec{font-size:1.05rem;overflow-wrap:anywhere}
+.verdict{border-radius:12px;padding:10px 12px;font-weight:700}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.warn{background:var(--warn-bg);color:var(--warn)} .verdict.bad{background:var(--bad-bg);color:var(--bad)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:currentColor}
+.listen{font-weight:700;color:var(--brand)}
+.interim{min-height:1.5em;color:var(--muted);overflow-wrap:anywhere}
+.small{display:flex;flex-wrap:wrap;gap:4px 12px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:600;font-size:.95rem}
+.field .d{color:var(--muted);font-size:.8rem}
+input[type=text],input[type=password],select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-size:1rem;font-family:inherit}
+textarea{min-height:200px;font-family:ui-monospace,monospace;font-size:.85rem}
+input[type=range]{width:100%}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:8px;border-bottom:1px solid var(--line)}
+.sw input{width:22px;height:22px}
+.seg{display:flex;gap:6px}
+.seg label{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;background:var(--bg);font-size:.9rem}
+.seg input{display:none}
+.seg input:checked+span{font-weight:700;color:var(--brand)}
+.seg label:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(90px + env(safe-area-inset-bottom,0px));max-width:600px;margin:0 auto;background:var(--text);color:var(--bg);padding:12px 14px;border-radius:12px;z-index:9;font-size:.9rem}
+.sumrow{display:flex;gap:8px;align-items:flex-start;padding-block:8px;border-bottom:1px solid var(--line)}
+.sumrow>div{min-width:0}
+.big{font-size:2.4rem;font-weight:800;line-height:1}
+details{margin-bottom:10px} summary{cursor:pointer;color:var(--brand);font-weight:600}
+details p,details ol{font-size:.88rem;color:var(--muted)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toastHost"></div>
+
+<script>
+/* ========================================================================
+   기본 콘텐츠 (내 대화 형식과 같은 마크다운). 한자 뒤 (히라가나)는 읽는 법입니다.
+   ======================================================================== */
+const DEFAULT_MD = `# 1. 만능 표현 (카페에서)
+
+* **점원**: いらっしゃいませ。
+  (어서 오세요.)
+
+* **손님**: すみません。
+  (저기요.)
+
+* **점원**: はい、どうぞ。
+  (네, 말씀하세요.)
+
+* **손님**: いくらですか。 (또는 アイスコーヒーはいくらですか。)
+  (얼마인가요?)
+
+* **점원**: 四百円(よんひゃくえん)です。
+  (400엔입니다.)
+
+* **손님**: アイスコーヒー、お願(ねが)いします。 (또는 アイスコーヒーをお願(ねが)いします。)
+  (아이스 커피 부탁합니다.)
+
+* **점원**: 少々(しょうしょう)お待(ま)ちください。
+  (잠시만 기다려 주세요.)
+
+* **점원**: お待(ま)たせしました。
+  (오래 기다리셨습니다.)
+
+* **점원**: レシートはよろしいでしょうか。
+  (영수증은 괜찮으신가요?)
+
+* **손님**: 大丈夫(だいじょうぶ)です。 (또는 いいえ、大丈夫(だいじょうぶ)です。)
+  (괜찮습니다.)
+
+* **손님**: すみません、トイレはどこですか。 (또는 トイレはどこですか。)
+  (저기요, 화장실은 어디인가요?)
+
+* **점원**: あちらです。
+  (저쪽입니다.)
+
+# 2. 숙소 (호텔에서)
+
+* **직원**: いらっしゃいませ。
+  (어서 오세요.)
+
+* **손님**: 荷物(にもつ)を預(あず)けてもいいですか。
+  (짐 맡겨도 되나요?)
+
+* **직원**: はい、大丈夫(だいじょうぶ)です。お預(あず)かりします。
+  (네, 괜찮습니다. 맡아 드리겠습니다.)
+
+* **손님**: チェックイン、お願(ねが)いします。
+  (체크인 부탁합니다.)
+
+* **직원**: ご予約(よやく)のお名前(なまえ)をお願(ねが)いします。
+  (예약하신 성함을 말씀해 주세요.)
+
+* **손님**: 予約(よやく)した李(イ)です。 (또는 予約(よやく)している李(イ)と申(もう)します。)
+  (예약한 이입니다.)
+
+* **직원**: パスポートをお願(ねが)いします。
+  (여권을 부탁드립니다.)
+
+* **손님**: はい、どうぞ。
+  (네, 여기 있습니다.)
+
+* **직원**: コピーをとります。少々(しょうしょう)お待(ま)ちください。
+  (복사하겠습니다. 잠시만 기다려 주세요.)
+
+* **손님**: 朝食(ちょうしょく)はいつですか。
+  (조식은 언제예요?)
+
+* **직원**: 朝食(ちょうしょく)は、8時(はちじ)から十時(じゅうじ)までです。
+  (조식은 8시부터 10시까지입니다.)
+
+* **손님**: （다음 날 아침）チェックアウト、お願(ねが)いします。 (또는 お会計(かいけい)、お願(ねが)いします。)
+  (체크아웃 부탁합니다.)
+
+* **직원**: ありがとうございました。
+  (감사합니다.)
+
+# 3. 편의점
+
+* **점원**: いらっしゃいませ。
+  (어서 오세요.)
+
+* **손님**: お会計(かいけい)お願(ねが)いします。
+  (계산 부탁합니다.)
+
+* **점원**: 袋(ふくろ)は要(い)りますか。 (또는 レジ袋(ぶくろ)はご利(り)用(よう)ですか)
+  (봉투 필요하세요?)
+
+* **손님**: 大丈夫(だいじょうぶ)です。
+  (괜찮습니다.)
+
+* **점원**: 温(あたた)めますか。
+  (데워 드릴까요?)
+
+* **손님**: お願(ねが)いします。
+  (부탁합니다. 그렇게 해주세요.)
+
+* **손님**: お箸(はし)、お願(ねが)いします。
+  (젓가락 주세요.)
+
+* **점원**: ポイントカードはお持(も)ちですか。
+  (포인트 카드는 가지고 계시나요?)
+
+* **손님**: いいえ。 (또는 いえ、持(も)っていません。)
+  (아니요.)
+
+* **점원**: 画面(がめん)のタッチ、お願(ねが)いします。「確認(かくにん)」です。
+  (화면 터치 부탁드립니다. '확인'입니다.)
+
+* **손님**: はい、わかりました。
+  (네, 알겠습니다.)
+
+* **점원**: ありがとうございました。
+  (감사합니다.)
+
+# 4. 식당
+
+* **점원**: いらっしゃいませ、何名様(なんめいさま)ですか。
+  (어서 오세요, 몇 분이신가요?)
+
+* **손님**: 6人(ろくにん)です。
+  (6명이예요.)
+
+* **점원**: こちらへどうぞ。
+  (이쪽으로 오세요.)
+
+* **손님**: あの、すみません。 (또는 あの、すいません。)
+  (저기요, 실례합니다.)
+
+* **점원**: はい。
+  (네.)
+
+* **손님**: とりあえず生(なま)ビール6杯(ろっぱい)お願(ねが)いします
+  (우선 생맥주 6잔 주세요)
+
+* **점원**: はい
+  (네)
+
+* **손님**: 韓国語(かんこくご)のメニュー、ありますか。
+  (한국어 메뉴판 있어요?)
+
+* **점원**: はい、こちらです。
+  (네, 여기 있습니다.)
+
+* **손님**: これ、一(ひと)つお願(ねが)いします。
+  (이거 하나 주세요.)
+
+* **점원**: 少々(しょうしょう)お待(ま)ちください。
+  (잠시만 기다려 주세요.)
+
+* **점원**: お待(ま)たせしました。
+  (오래 기다리셨습니다.)
+
+* **손님**: どうも。 (또는 どうもありがとうございます。)
+  (감사합니다.)
+
+* **손님**: ごちそうさまでした。お会計(かいけい)、お願(ねが)いします。
+  (잘먹었습니다. 계산 부탁합니다.)
+
+* **점원**: ありがとうございました。
+  (감사합니다.)
+
+# 5. 교통수단 (역·버스·택시)
+
+* **직원**: （개찰구 안내음）残額不足(ざんがくぶそく)です。チャージしてください。
+  (잔액 부족입니다. 충전해 주세요)
+
+* **손님**: すみません、のりこし精算(せいさん)はどこですか。 (또는 のりこし精算(せいさん)はどこですか。)
+  (추가 요금 정산기는 어디 있나요?)
+
+* **직원**: あちらです。
+  (저쪽입니다.)
+
+* **손님**: （버스에서）両替(りょうがえ)、いいですか。
+  (동전 교환해도 되나요?)
+
+* **직원**: はい、どうぞ。
+  (네, 하세요.)
+
+* **손님**: このバス、新宿駅(しんじゅくえき)までいきますか。
+  (이 버스, 신주쿠역까지 가나요?)
+
+* **직원**: はい、いきます。
+  (네, 갑니다.)
+
+* **직원**: （버스 안내방송）次(つぎ)、止(と)まります。
+  (다음 정거장에 정차합니다.)
+
+* **손님**: あ、次(つぎ)ですね。
+  (아, 다음이네요.)
+
+* **손님**: （택시에서）トランクを開(あ)けてもらえますか。
+  (트렁크 좀 열어주시겠어요?)
+
+* **직원**: はい、どうぞ。
+  (네, 사용하세요)
+
+* **손님**: ここまでお願(ねが)いします。
+  (여기까지 부탁드립니다.)
+
+* **직원**: はい、わかりました。
+  (네, 알겠습니다.)
+
+* **손님**: 交通系(こうつうけい)ICカードは使(つか)えますか。
+  (교통카드 사용할 수 있나요?)
+
+* **직원**: はい、使(つか)えます。
+  (네, 사용할 수 있습니다.)
+
+# 6. 쇼핑
+
+* **점원**: いらっしゃいませ。
+  (어서 오세요.)
+
+* **손님**: すみません、これありますか。
+  (저기요, 이거 있나요?)
+
+* **점원**: はい、ございます。
+  (네, 있습니다.)
+
+* **손님**: 試着(しちゃく)してもいいですか。 (또는 この靴(くつ)、履(は)いてみてもいいですか。)
+  (입어 봐도 되나요? / 이 신발, 신어 봐도 되나요?)
+
+* **점원**: はい、どうぞ。
+  (네, 그러세요.)
+
+* **손님**: 新(あたら)しいのありますか。 (또는 これ、新(あたら)しいのありますか。)
+  (새 제품 있나요?)
+
+* **점원**: 少々(しょうしょう)お待(ま)ちください。
+  (잠시만 기다려 주세요.)
+
+* **점원**: お待(ま)たせしました。こちらです。
+  (오래 기다리셨습니다. 여기 있습니다.)
+
+* **손님**: お会計(かいけい)、お願(ねが)いします。
+  (계산 부탁합니다.)
+
+* **점원**: 五千円(ごせんえん)です。
+  (5,000엔입니다.)
+
+* **손님**: カードできますか。 (또는 カードは使(つか)えますか。)
+  (카드 되나요?)
+
+* **점원**: はい、ご利用(りよう)いただけます。
+  (네, 이용하실 수 있습니다.)
+
+* **손님**: 免税(めんぜい)、できますか。
+  (면세 가능한가요?)
+
+* **점원**: はい、できます。パスポートをお願(ねが)いします。
+  (네, 가능합니다. 여권 부탁드립니다.)
+
+* **점원**: お包(つつ)みいたしますか。
+  (포장해 드릴까요?)
+
+* **손님**: プレゼント用(よう)です。
+  (선물할 거예요.)
+
+* **손님**: レシートください。 (또는 レシートをください。 / 領収書(りょうしゅうしょ)ください。)
+  (영수증 주세요.)
+
+* **점원**: ありがとうございました。
+  (감사합니다.)
+`;
+
+const TEMPLATE_MD = `# 카페 주문
+
+* **점원 (점)**: いらっしゃいませ。ご注文(ちゅうもん)はお決(き)まりですか？
+  (어서 오세요. 주문하시겠어요?)
+
+* **손님 (손)**: ホットコーヒーをお願(ねが)いします。 (또는 ホットコーヒーをください。 / ホットコーヒーを一(ひと)つ。)
+  (따뜻한 커피 부탁드려요.)
+
+* **점**: 店内(てんない)でお召(め)し上(あ)がりですか？
+  (매장에서 드시나요?)
+
+* **손**: はい、店内(てんない)でお願(ねが)いします。
+  (네, 매장에서 먹을게요.)
+`;
+
+/* ========================= 저장소 ========================= */
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const DEF={grade:'voice',thr:70,engine:'device',gkey:'',gvA:'ja-JP-Neural2-B',gvB:'ja-JP-Neural2-C',dvA:'',dvB:'',rate:0.9,
+  showJa:true,showKoOther:true,showRd:false,hint:true,autoNext:true};
+let S=Object.assign({},DEF,store.get('jp.settings',{}));
+let userScen=store.get('jp.userScen',[]);
+let weak=store.get('j261002.weak',{});
+const saveS=()=>store.set('jp.settings',S);
+
+/* ========================= 파서 ========================= */
+const RUBY=/([0-9０-９]*[一-鿿々〆ヶ]+)[（(]([ぁ-ゖァ-ヶー]+)[）)]/g;
+function splitRuby(t){return {t:t.replace(RUBY,'$1').replace(/\s+/g,' ').trim(), r:t.replace(RUBY,'$2').replace(/\s+/g,' ').trim()};}
+function parseMd(md){
+  const out=[];let cur=null,last=null;
+  const start=t=>{cur={id:'sc:'+t,title:t,roleA:'',roleB:'',lines:[]};out.push(cur);last=null;};
+  for(const raw of md.split(/\r?\n/)){
+    const line=raw.trim(); if(!line) continue;
+    let m;
+    if((m=line.match(/^#{1,2}\s+(.+)$/))){start(m[1].trim());continue;}
+    if(line.startsWith('###')) continue;
+    if((m=line.match(/^[*\-]\s*\*\*(.+?)\*\*\s*[:：]\s*(.*)$/))){
+      if(!cur)start('내 대화');
+      const spk=m[1]; let body=m[2].trim();
+      const who=/점|직원|clerk|staff|host|店/i.test(spk)?'A':'B';
+      let nm=spk.replace(/[（(].*?[）)]/g,'').trim();
+      if(nm==='점')nm='점원'; if(nm==='손')nm='손님';
+      if(who==='A'&&!cur.roleA)cur.roleA=nm; if(who==='B'&&!cur.roleB)cur.roleB=nm;
+      let alts=[];
+      const am=body.match(/[（(]\s*(?:또는|또|alt|대체)\s*[:：]?\s*(.+)[）)]\s*$/i);
+      if(am){alts=am[1].split(/\s*[\/／]\s*/).map(x=>x.trim()).filter(Boolean);body=body.slice(0,am.index).trim();}
+      let note='';
+      const sm=body.match(/^[（(]([^）)]*[가-힣][^）)]*)[）)]\s*/);
+      if(sm){note=sm[1];body=body.slice(sm[0].length);}
+      const main=splitRuby(body);
+      const l={who,ja:main.t,rd:main.r,ko:'',note,alts:alts.map(splitRuby)};
+      cur.lines.push(l); last=l; continue;
+    }
+    if(last&&!last.ko&&(m=line.match(/^[（(](.+)[）)]$/))){last.ko=m[1].trim();continue;}
+  }
+  out.forEach(s=>{s.roleA=s.roleA||'점원';s.roleB=s.roleB||'손님';});
+  return out.filter(s=>s.lines.length);
+}
+function ro(n){const c=(n||'').slice(-1).charCodeAt(0)-0xAC00;return (c>=0&&c<11172&&(c%28===0||c%28===8))?'로':'으로';}
+function allScen(){
+  const built=parseMd(DEFAULT_MD);
+  const ids=new Set(userScen.map(u=>u.id));
+  return built.filter(b=>!ids.has(b.id)).concat(userScen);
+}
+let scenarios=allScen();
+
+/* ========================= 채점 ========================= */
+const hira=s=>s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+function norm(s){return hira((s||'').normalize('NFKC')).toLowerCase().replace(/[^ぁ-ゖー一-鿿々a-z0-9]/g,'');}
+function lev(a,b){
+  const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  let p=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));}p=c;}
+  return p[n];
+}
+function sim(a,b){
+  if(!a||!b)return 0;
+  let s=1-lev(a,b)/Math.max(a.length,b.length);
+  if(a.length>=4&&b.includes(a)) s=Math.max(s,0.85);
+  return s;
+}
+function candidates(l){
+  const c=[{t:l.ja,r:l.rd}].concat(l.alts||[]); const set=new Set();
+  c.forEach(x=>{const a=norm(x.t),b=norm(x.r);if(a)set.add(a);if(b)set.add(b);});
+  return [...set];
+}
+function bestScore(l,heard){
+  const cs=candidates(l); let best=0;
+  heard.forEach(h=>{const n=norm(h);cs.forEach(c=>{best=Math.max(best,sim(c,n));});});
+  return Math.round(best*100);
+}
+
+/* ========================= 음성 출력 ========================= */
+let voices=[]; let stopper=null;
+function loadVoices(){try{voices=speechSynthesis.getVoices().filter(v=>/^ja/i.test(v.lang));}catch(e){voices=[];}}
+try{loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}
+function stopAudio(){if(stopper){const f=stopper;stopper=null;try{f()}catch(e){}}}
+function speakDevice(text,who){
+  return new Promise(res=>{
+    try{speechSynthesis.cancel();}catch(e){}
+    const u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=S.rate;
+    const pick=uri=>voices.find(v=>v.voiceURI===uri);
+    const vA=pick(S.dvA)||voices[0], vB=pick(S.dvB)||voices[1]||voices[0];
+    const v=who==='A'?vA:vB; if(v)u.voice=v;
+    if(vA===vB) u.pitch=who==='A'?1.15:0.85;
+    let done=false;
+    const fin=()=>{if(done)return;done=true;clearTimeout(t);res();};
+    const t=setTimeout(fin,text.length*450/S.rate+4000);
+    u.onend=fin;u.onerror=fin;
+    stopper=()=>{try{speechSynthesis.cancel();}catch(e){}fin();};
+    try{speechSynthesis.speak(u);}catch(e){fin();}
+  });
+}
+const gcache=new Map();
+async function gFetch(text,who){
+  const name=who==='A'?S.gvA:S.gvB; const k=name+'|'+S.rate+'|'+text;
+  if(gcache.has(k))return gcache.get(k);
+  const r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+encodeURIComponent(S.gkey),{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({input:{text},voice:{languageCode:'ja-JP',name},audioConfig:{audioEncoding:'MP3',speakingRate:S.rate}})});
+  if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(e){}throw new Error('Google 음성 오류 '+r.status+' '+m);}
+  const j=await r.json(); const url='data:audio/mp3;base64,'+j.audioContent; gcache.set(k,url); return url;
+}
+function playUrl(url){
+  return new Promise(res=>{
+    const a=new Audio(url); let done=false;
+    const fin=()=>{if(done)return;done=true;res();};
+    a.onended=fin;a.onerror=fin;
+    stopper=()=>{try{a.pause()}catch(e){}fin();};
+    a.play().catch(fin);
+  });
+}
+let gWarned=false;
+async function speak(text,who){
+  stopAudio();
+  if(S.engine==='google'&&S.gkey){
+    try{const url=await gFetch(text,who);return await playUrl(url);}
+    catch(e){ if(!gWarned){gWarned=true;toast(e.message+' (기기 음성으로 대체합니다)');} }
+  }
+  return speakDevice(text,who);
+}
+function prefetch(items){
+  if(S.engine!=='google'||!S.gkey)return;
+  items.forEach(x=>{gFetch(x.text,x.who).catch(()=>{});});
+}
+
+/* ========================= 음성 인식 ========================= */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let curRec=null;
+function listen(onInterim){
+  return new Promise((res,rej)=>{
+    if(!SR){rej({error:'unsupported'});return;}
+    const r=new SR(); curRec=r;
+    r.lang='ja-JP'; r.interimResults=true; r.maxAlternatives=5; r.continuous=false;
+    let fin=null,interim='',err=null;
+    r.onresult=e=>{
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const rs=e.results[i];
+        if(rs.isFinal){fin=Array.from(rs).map(a=>a.transcript);}
+        else{interim=rs[0].transcript;if(onInterim)onInterim(interim);}
+      }
+    };
+    r.onerror=e=>{err=e.error;};
+    r.onend=()=>{curRec=null; if(fin)res(fin); else if(interim)res([interim]); else rej({error:err||'no-speech'});};
+    try{r.start();}catch(e){rej({error:'start-failed'});}
+  });
+}
+function errMsg(e){
+  const c=e&&e.error;
+  if(c==='not-allowed'||c==='service-not-allowed')return '마이크 권한이 꺼져 있습니다. 주소창 왼쪽 자물쇠 → 권한 → 마이크 허용을 눌러 주세요.';
+  if(c==='no-speech')return '목소리가 들리지 않았어요. 다시 말해 보세요.';
+  if(c==='network')return '음성 인식 서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.';
+  if(c==='unsupported')return '이 브라우저는 음성 인식을 지원하지 않아요. Chrome으로 열어 주세요.';
+  if(c==='aborted')return '';
+  return '음성 인식에 실패했어요 ('+(c||'알 수 없음')+').';
+}
+
+/* ========================= 공통 UI ========================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let view='home', P=null, toastT=null;
+function toast(msg){
+  const h=$('#toastHost'); h.innerHTML='<div class="toast" role="status">'+esc(msg)+'</div>';
+  clearTimeout(toastT); toastT=setTimeout(()=>{h.innerHTML='';},4500);
+}
+function go(v){view=v;render();window.scrollTo(0,0);}
+function render(){({home:rHome,practice:rPractice,swap:rSwap,summary:rSummary,settings:rSettings,content:rContent})[view]();}
+const app=$('#app');
+const findScen=id=>scenarios.find(s=>s.id===id);
+
+/* ========================= 홈 ========================= */
+function rHome(){
+  const wn=Object.keys(weak).length; let warn='';
+  if(!SR)warn+='<div class="banner">이 브라우저는 음성 인식을 지원하지 않습니다. 안드로이드 Chrome에서 열어 주세요. (정답 공개 방식은 사용 가능)</div>';
+  if(!window.isSecureContext)warn+='<div class="banner">https 주소에서만 마이크가 동작합니다. 현재 주소는 보안 연결이 아닙니다.</div>';
+  app.innerHTML=`
+  <header class="top"><h1>Japan261002</h1><div class="btns"><button class="icon" data-act="content" aria-label="콘텐츠">📚</button><button class="icon" data-act="settings" aria-label="설정">⚙️</button></div></header>
+  ${warn}
+  <p class="sub">상황과 역할을 고르세요. 상대 대사는 음성으로 들려 드립니다.</p>
+  ${wn?`<section class="card"><h2>약한 문장 복습</h2><p class="meta">틀렸던 문장 ${wn}개</p><div class="row"><button class="btn" data-act="review">복습 시작</button><button class="btn ghost" data-act="clearweak">목록 비우기</button></div></section>`:''}
+  ${scenarios.map(s=>`<section class="card"><h2>${esc(s.title)}</h2><p class="meta">${s.lines.length}문장 · ${esc(s.roleB)} ↔ ${esc(s.roleA)}</p>
+    <div class="row"><button class="btn" data-act="start" data-id="${esc(s.id)}" data-role="B">${esc(s.roleB)}${ro(s.roleB)} 연습</button><button class="btn" data-act="start" data-id="${esc(s.id)}" data-role="A">${esc(s.roleA)}${ro(s.roleA)} 연습</button></div>
+    <div class="row" style="margin-top:8px"><button class="btn ghost" data-act="start" data-id="${esc(s.id)}" data-role="swap">교대 연습 (${esc(s.roleB)} → ${esc(s.roleA)})</button></div></section>`).join('')}`;
+}
+
+/* ========================= 연습 ========================= */
+function makeSeq(scen,me){return scen.lines.map((l,idx)=>({scen,l,idx,mine:l.who===me}));}
+function startPractice(scen,role){
+  const rounds=role==='swap'?['B','A']:[role];
+  P={scen,rounds,ri:0,rounds_res:[],review:false,tok:0};
+  beginRound();
+}
+function startReviewFrom(keys){
+  const seq=[]; const sorted=keys.map(k=>{const [id,ix]=k.split('#');return {s:findScen(id),ix:+ix};}).filter(x=>x.s&&x.s.lines[x.ix]);
+  sorted.forEach(x=>{
+    if(x.ix>0){const prev=x.s.lines[x.ix-1]; if(prev.who!==x.s.lines[x.ix].who)seq.push({scen:x.s,l:prev,idx:x.ix-1,mine:false});}
+    seq.push({scen:x.s,l:x.s.lines[x.ix],idx:x.ix,mine:true});
+  });
+  if(!seq.length){toast('복습할 문장이 없습니다.');return;}
+  P={scen:null,rounds:['review'],ri:0,rounds_res:[],review:true,tok:0,customSeq:seq};
+  beginRound();
+}
+function beginRound(){
+  const r=P.rounds[P.ri];
+  P.seq=P.review?P.customSeq.map(x=>Object.assign({},x)):makeSeq(P.scen,r);
+  P.i=0;P.log=[];P.res=[];P.phase='';P.lastOther=null;P.fail=0;P.err='';P.last=null;
+  view='practice';render();window.scrollTo(0,0);
+  prefetch(P.seq.map(x=>({text:x.l.ja,who:x.l.who})));
+  step();
+}
+function myRoleName(){if(P.review)return '복습';const r=P.rounds[P.ri];return r==='A'?P.scen.roleA:P.scen.roleB;}
+function rPractice(){
+  app.innerHTML=`<div class="hd"><div class="t">${esc(P.review?'약한 문장 복습':P.scen.title)}<div class="p" id="prog"></div></div><button class="icon" data-act="quit" aria-label="종료">✕</button></div><div class="log" id="log"></div><div class="panel" id="panel"></div>`;
+  renderLog();renderProg();renderPanel();
+}
+function renderProg(){const e=$('#prog');if(e)e.textContent=`${Math.min(P.i+1,P.seq.length)}/${P.seq.length} · 내 역할: ${myRoleName()}${P.rounds.length>1?` (${P.ri+1}/${P.rounds.length}라운드)`:''}`;}
+function renderLog(){
+  const el=$('#log'); if(!el)return;
+  el.innerHTML=P.log.map(b=>{
+    const l=b.l;
+    if(b.me)return `<div class="bub me"><div class="who">나</div><div class="ja">${esc(l.ja)}</div>${S.showRd&&l.rd!==l.ja?`<div class="rd">${esc(l.rd)}</div>`:''}<div class="mk ${b.ok?'ok':'ng'}">${b.ok?'✓ 통과':'✗ 다시 연습'} ${b.score!=null?b.score+'%':''}</div></div>`;
+    const who=l.who==='A'?P.scen?P.scen.roleA:(b.scen?b.scen.roleA:'상대'):(b.scen?b.scen.roleB:'상대');
+    const shown=!b.hide;
+    return `<div class="bub other"><div class="who">${esc(b.scen?(l.who==='A'?b.scen.roleA:b.scen.roleB):who)}</div>${shown?`${l.note?`<div class="note">${esc(l.note)}</div>`:''}<div class="ja">${esc(l.ja)}</div>${S.showRd&&l.rd!==l.ja?`<div class="rd">${esc(l.rd)}</div>`:''}${S.showKoOther&&l.ko?`<div class="ko">${esc(l.ko)}</div>`:''}`:'<div class="muted">🔊 (텍스트 숨김) 듣고 이해해 보세요</div>'}</div>`;
+  }).join('');
+  window.scrollTo(0,document.body.scrollHeight);
+}
+function ansBlock(l){
+  return `<div class="lbl">정답</div><div class="ans">${esc(l.ja)}</div>${l.rd!==l.ja?`<div class="rd muted">${esc(l.rd)}</div>`:''}${l.ko?`<div class="ko muted">${esc(l.ko)}</div>`:''}${l.alts&&l.alts.length?`<div class="lbl">이렇게 말해도 정답</div><div class="rd muted">${l.alts.map(a=>esc(a.t)).join(' / ')}</div>`:''}`;
+}
+function renderPanel(){
+  const el=$('#panel'); if(!el)return;
+  const st=P.seq[P.i]; const ph=P.phase; let h='';
+  if(!st){el.innerHTML='';return;}
+  const l=st.l;
+  if(ph==='speaking'){
+    h=`<div class="muted">🔊 재생 중…</div><div class="row"><button class="btn ghost" data-act="skipTalk">재생 건너뛰기</button></div>`;
+  }else if(ph==='heard'){
+    h=`<div class="row"><button class="btn ghost" data-act="replay">🔁 다시 듣기</button>${P.peekable?'<button class="btn ghost" data-act="peek">👁 텍스트 보기</button>':''}<button class="btn" data-act="next">다음 ▶</button></div>`;
+  }else if(ph==='answer'){
+    h=`<div class="turn"><div class="who">🎯 당신의 차례 (${esc(l.who==='A'?st.scen.roleA:st.scen.roleB)})</div>${S.hint||P.hintOn?`<div class="ko-big">${esc(l.ko||'(뜻 정보 없음)')}</div>`:'<div class="ko-big muted">한국어 힌트 숨김</div>'}</div>
+    ${P.err?`<div class="banner" style="margin:0">${esc(P.err)}</div>`:''}
+    ${P.fail>=2&&S.grade==='voice'?`<div class="banner" style="margin:0">음성 인식이 계속 안 되나요? <button class="link" data-act="modeReveal">정답 공개 방식으로 바꾸기</button></div>`:''}
+    <div class="row">${S.grade==='voice'?'<button class="mic" data-act="mic">🎤 말하기</button>':''}<button class="btn ${S.grade==='voice'?'ghost':''}" data-act="reveal">👀 정답 공개</button></div>
+    <div class="small">${P.lastOther?'<button class="link" data-act="replay">🔁 상대 대사 다시 듣기</button>':''}${!S.hint&&!P.hintOn?'<button class="link" data-act="showhint">💡 힌트</button>':''}<button class="link" data-act="skip">건너뛰기</button></div>`;
+  }else if(ph==='listening'){
+    h=`<div class="listen">🎤 듣고 있어요. 일본어로 말씀하세요.</div><div class="interim" id="interim"></div><div class="row"><button class="btn ghost" data-act="stopmic">말 끝냈어요</button></div>`;
+  }else if(ph==='result'){
+    const {alts,score,ok,forced}=P.last; const near=score>=S.thr-20;
+    const cls=ok?'ok':near?'warn':'bad';
+    const label=forced?'맞는 것으로 처리했어요':score>=95?'완벽해요! 🎉':ok?'비슷하게 맞았어요 👍':near?'아깝습니다':'다시 도전해 보세요';
+    h=`<div class="verdict ${cls}">${label} · ${score}%<div class="bar"><i style="width:${score}%"></i></div></div>
+    <div><div class="lbl">인식된 말</div><div class="rec">${esc(alts[0]||'')}</div>${ansBlock(l)}</div>
+    <div class="row"><button class="btn ghost" data-act="hearAns">🔊 정답 듣기</button><button class="btn ghost" data-act="mic">🎤 다시 말하기</button></div>
+    ${!ok?'<div class="small"><button class="link" data-act="force">인식이 틀렸어요. 맞게 처리</button></div>':''}
+    <div class="row"><button class="btn" data-act="next">다음 ▶</button></div>`;
+  }else if(ph==='revealed'){
+    h=`<div>${ansBlock(l)}</div><div class="row"><button class="btn ghost" data-act="hearAns">🔊 정답 듣기</button></div>
+    <div class="lbl">내가 말한 것이 맞았나요?</div><div class="row"><button class="btn" data-act="selfOk">✅ 맞았어요</button><button class="btn danger" data-act="selfNg">❌ 틀렸어요</button></div>`;
+  }
+  el.innerHTML=h;
+}
+async function step(){
+  const st=P.seq[P.i];
+  if(!st){endRound();return;}
+  renderProg();
+  P.tok++; const tok=P.tok; P.err=''; P.hintOn=false; P.attempts=0; P.best=null; P.ok=false; P.forced=false;
+  if(!st.mine){
+    P.phase='speaking';
+    const entry={scen:st.scen,l:st.l,hide:!S.showJa}; P.log.push(entry); P.curEntry=entry;
+    P.peekable=!S.showJa; P.lastOther={text:st.l.ja,who:st.l.who};
+    renderLog();renderPanel();
+    await speak(st.l.ja,st.l.who);
+    if(!P||P.tok!==tok)return;
+    P.phase='heard';renderPanel();
+    if(S.autoNext&&S.showJa){setTimeout(()=>{if(P&&P.tok===tok&&P.phase==='heard')next();},600);}
+  }else{
+    P.phase='answer';renderPanel();
+  }
+}
+function next(){
+  stopAudio();
+  const st=P.seq[P.i];
+  if(st.mine){
+    const best=P.best==null?0:P.best; const ok=P.ok;
+    P.res.push({scen:st.scen,idx:st.idx,l:st.l,best,ok});
+    const key=st.scen.id+'#'+st.idx;
+    if(ok){delete weak[key];}else{weak[key]=(weak[key]||0)+1;}
+    store.set('j261002.weak',weak);
+    P.log.push({me:true,l:st.l,ok,score:best});
+  }
+  P.tok++; P.i++; step();
+}
+function endRound(){
+  P.rounds_res.push({role:P.rounds[P.ri],res:P.res});
+  if(P.ri+1<P.rounds.length){view='swap';render();}
+  else{view='summary';render();}
+}
+async function doMic(){
+  stopAudio(); const st=P.seq[P.i]; const tok=++P.tok;
+  P.phase='listening';P.err='';renderPanel();
+  try{
+    const alts=await listen(t=>{const e=$('#interim');if(e)e.textContent=t;});
+    if(!P||P.tok!==tok)return;
+    P.fail=0; gradeVoice(alts);
+  }catch(e){
+    if(!P||P.tok!==tok)return;
+    P.fail++; P.phase='answer'; P.err=errMsg(e); renderPanel();
+  }
+}
+function gradeVoice(alts){
+  const st=P.seq[P.i]; const score=bestScore(st.l,alts); const ok=score>=S.thr;
+  P.attempts++; P.best=Math.max(P.best||0,score); P.ok=P.ok||ok;
+  P.last={alts,score,ok,forced:false}; P.phase='result'; renderPanel();
+}
+function selfGrade(ok){
+  P.attempts++; P.best=ok?100:0; P.ok=ok; P.forced=ok;
+  next();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b)return;
+  const a=b.dataset.act;
+  try{ acts[a]&&acts[a](b); }catch(err){ toast('오류: '+err.message); }
+});
+const acts={
+  settings(){go('settings');},
+  content(){go('content');},
+  home(){stopAudio();try{curRec&&curRec.abort();}catch(e){} P=null; go('home');},
+  quit(){stopAudio();try{curRec&&curRec.abort();}catch(e){} if(P)P.tok++; P=null; go('home');},
+  start(b){startPractice(findScen(b.dataset.id),b.dataset.role);},
+  review(){startReviewFrom(Object.keys(weak));},
+  clearweak(){weak={};store.set('j261002.weak',weak);render();},
+  skipTalk(){stopAudio();},
+  replay(){const t=P.lastOther;if(!t)return;const tok=++P.tok;const keep=P.phase;speak(t.text,t.who).then(()=>{if(P&&P.tok===tok&&keep==='heard'){P.phase='heard';}});},
+  peek(){if(P.curEntry){P.curEntry.hide=false;P.peekable=false;renderLog();renderPanel();}},
+  next(){next();},
+  mic(){doMic();},
+  stopmic(){try{curRec&&curRec.stop();}catch(e){}},
+  reveal(){stopAudio();P.phase='revealed';renderPanel();},
+  hearAns(){const st=P.seq[P.i];speak(st.l.ja,st.l.who);},
+  selfOk(){selfGrade(true);},
+  selfNg(){selfGrade(false);},
+  force(){P.ok=true;P.forced=true;P.last.ok=true;P.last.forced=true;P.last.score=Math.max(P.last.score,100);P.best=100;renderPanel();},
+  skip(){P.best=0;P.ok=false;next();},
+  showhint(){P.hintOn=true;renderPanel();},
+  modeReveal(){S.grade='reveal';saveS();P.err='';P.phase='answer';renderPanel();toast('정답 공개 방식으로 바꿨습니다. 설정에서 되돌릴 수 있어요.');},
+  swapGo(){P.ri++;beginRound();},
+  retry(){const keys=[];P.rounds_res.forEach(r=>r.res.forEach(x=>{if(!x.ok)keys.push(x.scen.id+'#'+x.idx);}));startReviewFrom(keys);},
+  again(){const s=P.scen,role=P.rounds.length>1?'swap':P.rounds[0]; if(P.review){startReviewFrom(Object.keys(weak));}else startPractice(s,role);},
+  saveContent(){saveContent();},
+  fillTemplate(){$('#md').value=TEMPLATE_MD;},
+  delScen(b){userScen=userScen.filter(u=>u.id!==b.dataset.id);store.set('jp.userScen',userScen);scenarios=allScen();rContent();toast('삭제했습니다.');},
+  testVoiceA(){speak('いらっしゃいませ。ご注文はお決まりですか？','A');},
+  testVoiceB(){speak('ホットコーヒーをお願いします。','B');},
+  testMic(){testMic();}
+};
+
+/* ========================= 교대 / 결과 ========================= */
+function rSwap(){
+  const next=P.rounds[P.ri+1]; const name=next==='A'?P.scen.roleA:P.scen.roleB;
+  app.innerHTML=`<header class="top"><h1>역할 교대</h1></header><section class="card"><h2>1라운드 끝</h2><p class="meta">이제 당신은 <b>${esc(name)}</b> 역할입니다. 상대 대사는 음성으로 나옵니다.</p><div class="row"><button class="btn" data-act="swapGo">${esc(name)}로 시작</button></div></section>`;
+}
+function rSummary(){
+  const blocks=P.rounds_res.map(r=>{
+    const n=r.res.length; const okN=r.res.filter(x=>x.ok).length; const avg=n?Math.round(r.res.reduce((a,x)=>a+x.best,0)/n):0;
+    const nm=P.review?'복습':(r.role==='A'?P.scen.roleA:P.scen.roleB);
+    return `<section class="card"><h2>${esc(nm)} 라운드</h2><div class="row" style="align-items:center"><div class="big">${okN}/${n}</div><div class="meta" style="flex:3">통과 · 평균 유사도 ${avg}%</div></div>
+    ${r.res.map(x=>`<div class="sumrow"><div class="mk ${x.ok?'ok':'ng'}">${x.ok?'✓':'✗'}</div><div><div>${esc(x.l.ja)}</div><div class="ko muted">${esc(x.l.ko||'')} · ${x.best}%</div></div></div>`).join('')}</section>`;
+  }).join('');
+  const anyBad=P.rounds_res.some(r=>r.res.some(x=>!x.ok));
+  app.innerHTML=`<header class="top"><h1>연습 결과</h1></header>${blocks}
+  <div class="row" style="margin-bottom:16px">${anyBad?'<button class="btn" data-act="retry">틀린 문장만 다시</button>':''}<button class="btn ghost" data-act="again">처음부터 다시</button><button class="btn ghost" data-act="home">처음 화면</button></div>`;
+}
+
+/* ========================= 설정 ========================= */
+function rSettings(){
+  loadVoices();
+  const vopts=sel=>'<option value="">자동</option>'+voices.map(v=>`<option value="${esc(v.voiceURI)}" ${v.voiceURI===sel?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+  const sw=(k,t,d)=>`<div class="sw"><div><div>${t}</div>${d?`<div class="d muted" style="font-size:.8rem">${d}</div>`:''}</div><input type="checkbox" data-k="${k}" ${S[k]?'checked':''} aria-label="${t}"></div>`;
+  app.innerHTML=`<header class="top"><h1>설정</h1><button class="icon" data-act="home" aria-label="닫기">✕</button></header>
+  <section class="card"><h2>채점 방식</h2>
+    <div class="seg" style="margin-block:8px"><label><input type="radio" name="grade" data-k="grade" value="voice" ${S.grade==='voice'?'checked':''}><span>🎤 음성 인식</span></label><label><input type="radio" name="grade" data-k="grade" value="reveal" ${S.grade==='reveal'?'checked':''}><span>👀 정답 공개</span></label></div>
+    <div class="field"><label for="thr">통과 기준 유사도: <b id="thrv">${S.thr}</b>%</label><input type="range" id="thr" data-k="thr" data-n="1" min="50" max="95" step="5" value="${S.thr}"><div class="d muted">낮출수록 비슷하게만 말해도 통과합니다. 조사나 말끝이 조금 달라도 인정하려면 65~75%를 권장합니다.</div></div>
+    <div class="row"><button class="btn ghost" data-act="testMic">🎤 마이크 시험</button></div><div id="micTest" class="muted" style="margin-top:6px"></div>
+  </section>
+  <section class="card"><h2>음성 (상대 대사)</h2>
+    <div class="field"><label for="engine">음성 엔진</label><select id="engine" data-k="engine"><option value="device" ${S.engine==='device'?'selected':''}>기기 기본 음성 (무료)</option><option value="google" ${S.engine==='google'?'selected':''}>Google Cloud 음성 (자연스러움)</option></select></div>
+    <div class="field"><label for="rate">말하는 속도: <b id="ratev">${S.rate.toFixed(2)}</b></label><input type="range" id="rate" data-k="rate" data-n="1" min="0.6" max="1.2" step="0.05" value="${S.rate}"></div>
+    <div class="field"><label for="dvA">기기 음성 - 역할 A (점원 등)</label><select id="dvA" data-k="dvA">${vopts(S.dvA)}</select></div>
+    <div class="field"><label for="dvB">기기 음성 - 역할 B (손님 등)</label><select id="dvB" data-k="dvB">${vopts(S.dvB)}</select></div>
+    <div class="field"><label for="gkey">Google Cloud API 키</label><input type="password" id="gkey" data-k="gkey" value="${esc(S.gkey)}" autocomplete="off" placeholder="AIza..."><div class="d muted">이 폰의 브라우저에만 저장됩니다.</div></div>
+    <div class="field"><label for="gvA">Google 음성 - 역할 A</label><input type="text" id="gvA" list="gv" data-k="gvA" value="${esc(S.gvA)}"></div>
+    <div class="field"><label for="gvB">Google 음성 - 역할 B</label><input type="text" id="gvB" list="gv" data-k="gvB" value="${esc(S.gvB)}"></div>
+    <datalist id="gv"><option value="ja-JP-Neural2-B"><option value="ja-JP-Neural2-C"><option value="ja-JP-Neural2-D"><option value="ja-JP-Wavenet-A"><option value="ja-JP-Wavenet-B"><option value="ja-JP-Wavenet-C"><option value="ja-JP-Wavenet-D"></datalist>
+    <div class="row"><button class="btn ghost" data-act="testVoiceA">▶ A 음성 듣기</button><button class="btn ghost" data-act="testVoiceB">▶ B 음성 듣기</button></div>
+    <details style="margin-top:12px"><summary>Google Cloud 음성 설정 방법</summary><ol>
+      <li>console.cloud.google.com 에서 프로젝트를 만들고 결제 계정을 연결합니다.</li>
+      <li>"Cloud Text-to-Speech API"를 사용 설정합니다.</li>
+      <li>API 및 서비스 → 사용자 인증 정보 → API 키 만들기.</li>
+      <li>키 제한에서 API를 "Cloud Text-to-Speech API"만 허용하고, 가능하면 이 앱 주소로 웹사이트 제한을 겁니다.</li>
+      <li>위 칸에 키를 붙여 넣고 음성 엔진을 Google로 바꿉니다.</li></ol>
+      <p>요금 정책은 Google 공식 요금표를 확인하세요. 연습 분량(문장당 수십 자)이면 사용량이 매우 적습니다.</p></details>
+  </section>
+  <section class="card"><h2>화면 표시</h2>
+    ${sw('showJa','상대 대사 텍스트 보이기','끄면 듣기만으로 연습합니다 (필요할 때 텍스트 보기 가능)')}
+    ${sw('showKoOther','상대 대사 한국어 뜻 보이기')}
+    ${sw('showRd','읽는 법(히라가나) 보이기')}
+    ${sw('hint','내 차례에 한국어 힌트 보이기')}
+    ${sw('autoNext','상대 대사가 끝나면 자동으로 다음으로','텍스트 보이기가 켜져 있을 때 적용')}
+  </section>
+  <div class="row"><button class="btn" data-act="home">완료</button></div>`;
+}
+document.addEventListener('input',e=>{
+  const k=e.target.dataset&&e.target.dataset.k; if(!k)return;
+  let v=e.target.type==='checkbox'?e.target.checked:e.target.value;
+  if(e.target.dataset.n)v=parseFloat(v);
+  if(e.target.type==='radio'&&!e.target.checked)return;
+  S[k]=v; saveS();
+  if(k==='thr'){const x=$('#thrv');if(x)x.textContent=v;}
+  if(k==='rate'){const x=$('#ratev');if(x)x.textContent=Number(v).toFixed(2);}
+});
+async function testMic(){
+  const el=$('#micTest'); el.textContent='🎤 아무 일본어나 말해 보세요…';
+  try{const a=await listen();el.textContent='인식 결과: '+a[0];}
+  catch(e){el.textContent=errMsg(e)||'취소됨';}
+}
+
+/* ========================= 콘텐츠 가져오기 ========================= */
+function rContent(){
+  app.innerHTML=`<header class="top"><h1>콘텐츠 추가</h1><button class="icon" data-act="home" aria-label="닫기">✕</button></header>
+  <p class="sub">대화를 아래 형식으로 붙여 넣거나 파일(.md, .txt)로 불러오세요. 제목은 <b># 제목</b> 줄로 구분하며, 한 파일에 여러 상황을 넣을 수 있습니다.</p>
+  <div class="field"><label for="file">파일 불러오기</label><input type="file" id="file" accept=".md,.txt,text/plain,text/markdown"></div>
+  <div class="field"><label for="md">대화 내용</label><textarea id="md" placeholder="# 상황 제목&#10;* **점원**: 일본어&#10;  (한국어 뜻)&#10;* **손님**: 일본어 (또는 다른 정답 / 또 다른 정답)&#10;  (한국어 뜻)"></textarea></div>
+  <div class="row"><button class="btn" data-act="saveContent">저장하고 추가</button><button class="btn ghost" data-act="fillTemplate">예시 넣기</button></div>
+  <details style="margin-top:12px"><summary>작성 규칙</summary><ol>
+    <li>화자 줄: <code>* **점원**: 일본어</code>, <code>* **손님**: 일본어</code></li>
+    <li>바로 아래 줄에 <code>(한국어 뜻)</code></li>
+    <li>한자 뒤에 읽는 법: <code>袋(ふくろ)</code>. 채점 정확도가 올라갑니다.</li>
+    <li>정답 여러 개: 줄 끝에 <code>(또는 표현1 / 표현2)</code></li>
+    <li>동작 설명: 대사 앞에 <code>（화면을 가리키며）</code></li>
+    <li>점원, 직원, 호스트 등은 역할 A, 그 밖의 화자는 역할 B로 처리됩니다.</li></ol></details>
+  <h2 style="font-size:1.05rem;margin-top:20px">내 콘텐츠</h2>
+  ${userScen.length?userScen.map(u=>`<div class="sumrow"><div style="flex:1"><b>${esc(u.title)}</b><div class="meta">${u.lines.length}문장</div></div><button class="btn danger" data-act="delScen" data-id="${esc(u.id)}" style="flex:0 0 auto">삭제</button></div>`).join(''):'<p class="muted">추가한 콘텐츠가 없습니다.</p>'}`;
+  $('#file').addEventListener('change',ev=>{
+    const f=ev.target.files[0]; if(!f)return;
+    const r=new FileReader(); r.onload=()=>{$('#md').value=r.result;}; r.readAsText(f,'utf-8');
+  });
+}
+function saveContent(){
+  const md=$('#md').value; if(!md.trim()){toast('내용을 입력해 주세요.');return;}
+  const list=parseMd(md);
+  if(!list.length){toast('대화를 찾지 못했습니다. 작성 규칙을 확인해 주세요.');return;}
+  const ids=new Set(list.map(x=>x.id));
+  userScen=userScen.filter(u=>!ids.has(u.id)).concat(list);
+  store.set('jp.userScen',userScen); scenarios=allScen();
+  toast(list.length+'개 상황을 추가했습니다.'); go('home');
+}
+
+render();
+</script>
+</body>
+</html>
